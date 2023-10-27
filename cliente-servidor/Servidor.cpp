@@ -4,7 +4,7 @@ void TCPserver::escuchaOn(){
 
     if (listen(serverSocket, 5) == -1){
 
-        std::cerr << "Error al escuchar coñexiones\n";
+        std::cerr << "Error al escuchar conexiones\n";
         exit(EXIT_FAILURE);
     }
 

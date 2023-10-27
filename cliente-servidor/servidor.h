@@ -40,6 +40,7 @@ class TCPserver{
         }
 
         void escuchaOn();
+        void recM();
         void sendM(const std::string &mensaje);
         void closeConect();
 };
