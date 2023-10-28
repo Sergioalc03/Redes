@@ -8,9 +8,9 @@ void TCPClient::sendMessage(const std::string &message){
     }
 }
 
-void TCPClient::receiveMessage(){
+std::string TCPClient::receiveMessage(){
 
-    char buffer[1024];
+    char buffer[255];
     ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
 
     if (bytesRead == -1){
@@ -20,7 +20,7 @@ void TCPClient::receiveMessage(){
     else{
 
         buffer[bytesRead] = '\0';
-        std::cout << "Mensaje del servidor: " << buffer << "\n";
+        return buffer;
     }
 }
 

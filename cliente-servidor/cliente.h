@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <string>
 
 class TCPClient {
 private:
@@ -37,7 +38,7 @@ public:
     }
 
     void sendMessage(const std::string& message);
-    void receiveMessage();
+    std::string receiveMessage();
     void closeConnection();
 };
 
