@@ -24,96 +24,90 @@ void Tablero::print()
     }
 }
 
-bool Tablero::disponible(int x, int y, int n, int o){
+bool Tablero::canPlace(int x, int y, int size, int o){
 
-    int i;
+    int i, j;
 
     if(o == 0){
 
-        if((y + n - 1) == 9){
+        if(x < 0 || x >= 10 || y < 0 || (y + size - 1)>= 10){
             
-            if(grid_[x][y - 1] == '~'){
-
-                return true;
-            }
-        }else{
-
-            for(i = (y - 1); i < (y + n); i ++){
-
-                if(grid_[x][i] != '~'){
-
-                    return false;
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        return false;
+        for(i = (x - 1); i <= (x + 1); i++){
+
+            for(j = (y - 1); j <= (y + size); j++){
+
+                if(i >= 0 && i < 10 && j >= 0 && j < 10){
+
+                    if(grid_[i][j] != '~'){
+
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }else{
 
-        if((x + n - 1) == 9){
+        if(x < 0 || (x + size - 1) >= 10 || y < 0 || (y + size - 1)>= 10){
             
-            if(grid_[x - 1][y] == '~'){
-
-                return true;
-            }
-        }else{
-
-            for(i = (x - 1); i < (x + n); i ++){
-
-                if(grid_[i][y] != '~'){
-
-                    return false;
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        return false;
-    }
-}
+        for(i = (x - 1); i <= (x + size); i++){
 
-bool Tablero::colisiones(int x, int y, int n, int o){
+            for(j = (y - 1); j <= (y + size); j++){
 
-    int i; 
+                if(i >= 0 && i < 10 && j >= 0 && j < 10){
 
-    if(o == 0){
+                    if(grid_[j][i] != '~'){
 
-        if(x == 0){
-            if(y + n - 1 == 9){
- 
-                for(i = (y - 1); i < 9; i++){
-                    
-                    if(grid_[x][i] != '~'){
-
-                    return false;
-                }
-                }
-            }else{
-
-                for(i = (y - 1); i < (y + n); i++){
-                
+                        return false;
+                    }
                 }
             }
-        }else if( x == 9){
+        }
 
-        }else{
-
-        }   
+        return true;
     }
 }
 
 void Tablero::placeShip(Barco ship){
 
-    int n = ship.getSize();
-    int orientacion = ship.getOrientacion();
-    int x, y, i;
+    int i, x, y, size, o;
+    bool placed = false;
+
     x = ship.getIordenadas(0);
     y = ship.getIcoordenadas(0);
+    size = ship.getSize();
+    o = ship.getOrientacion();
+            
+    if(canPlace(x, y, size, o)){
 
-    if(orientacion == 0){
+        if(o == 0){ 
 
-    }    
+            for(i = y; i < (y + size); i++){
+
+                grid_[x][i] = 'B';                
+            }
+
+            placed = true;
+        }else{
+
+            for(i = x; i < (x + size); i++){
+
+                grid_[i][y] = 'B';
+            }
+
+            placed = true;
+        }
+    }else{
+
+        ship.realocShip();
+        placeShip(ship);
+    }
+
 }

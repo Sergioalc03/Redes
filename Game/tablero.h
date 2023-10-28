@@ -4,6 +4,7 @@
 #include "barco.h"
 #include <vector>
 #include <iostream>
+#include <string>
 
 class Tablero{
 
@@ -18,11 +19,23 @@ class Tablero{
             grid_ = std::vector<std::vector<char>>(10, std::vector<char>(10, '~'));
         }
 
+        Tablero(std::string Base){
+
+            int x, y, n = Base.size();
+            grid_ = std::vector<std::vector<char>>(10, std::vector<char>(10, '~'));
+            for(x = 0; x < 10; x++){
+                for(y = 0; y < 10; y++){
+                    if(Base[10*x+y+x] == 'B'){
+                        
+                        grid_[x][y] = 'B';
+                    }
+                }
+            }
+        }
+
         void print();
 
-        bool disponible(int x, int y, int n, int o);
-
-        bool colisiones(int x, int y, int n, int o);
+        bool canPlace(int x, int y, int size, int o);
 
         void placeShip(Barco ship);
 
