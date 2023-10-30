@@ -11,14 +11,21 @@ Jugador::Jugador(){
 }
 
 void Jugador::nuevaPartida(){
+    for(int i=0;i<10;i++)
+        for(int j=0; j<10;j++){
+            tablero_enemigo.setGridposition(i,j,'~');
+            tablero_propio.setGridposition(i,j,'~');
+        }
     barcos[0]=Barco(4);
     barcos[1]=Barco(3);
     barcos[2]=Barco(3);
     barcos[3]=Barco(2);
     barcos[4]=Barco(2);
     for(int i=0;i<5;i++)
-        tablero_propio.placeShip(barcos[i]);   
-    }
+        tablero_propio.placeShip(barcos[i]);
+    numDisp=0;
+    numBarcos=5; 
+}
 
 void Jugador::AsociarSocket(int socket){
     userSocket=socket;

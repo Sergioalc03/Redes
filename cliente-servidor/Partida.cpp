@@ -14,8 +14,11 @@ void Partida::asociarSockets(int sd1, int sd2){
     jugadores[1].AsociarSocket(sd2);
 }
 
-Jugador Partida::getJugador(int i){
-    return jugadores[i];
+Jugador Partida::getJugador(int sd){
+    if(jugadores[0].getSocket()==sd)
+        return jugadores[0];
+    else
+        return jugadores[1];
 }
 
 int Partida::DisparoRecibido(int SocketPlayer, int x, int y){
@@ -41,18 +44,24 @@ int Partida::DisparoRecibido(int SocketPlayer, int x, int y){
 
                         jugadores[1-player].setNumB( jugadores[1-player].getNumB()-1 );
                         if(jugadores[1-player].getNumB()==0)
-                            return finPartida(jugadores[player]);
+                            return 3;
                 
                 } else if(barcoTocado!=nullptr) {
                         
                         cambiarTablero(player,x,y,1);
+                        turno=1-turno;
+                        return disparoResult;
                 
                 } else
+                        turno=1-turno;
                         return -3;
             } else {
                 cambiarTablero(player,x,y,0);
+                turno=1-turno;
+                return disparoResult;
             }
         }
+        return disparoResult;
     }
 }
 
@@ -145,6 +154,6 @@ void Partida::cambiarTablero(int player, int x, int y, int evento){
     }
 }
 
-int Partida::finPartida(Jugador player){
-    return player.getSocket();
+int Partida::getSocketDelTurno(){
+    return jugadores[turno].getSocket();
 }

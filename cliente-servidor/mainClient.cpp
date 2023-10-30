@@ -80,7 +80,6 @@ int main(int argc, char **argv){
     std::cout << "-----Opciones-----\n1- Buscar Partida\n2- Salir\n";
     std::cin >> opcion;
     bool waiting;
-    int salir;
     while(!salir){
         switch (opcion)
         {

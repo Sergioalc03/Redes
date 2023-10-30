@@ -14,7 +14,7 @@ public:
     
     void nuevaPartida();
     void asociarSockets(int sd1, int sd2);
-    Jugador getJugador(int i);
+    Jugador getJugador(int sd);
     int DisparoRecibido(int socketPlayer,int x, int y); 
 
     int comprobarDisparo(int player, int x, int y); //Comprueba disparo
@@ -25,5 +25,5 @@ public:
 
     void cambiarTablero(int player, int x, int y, int evento);
 
-    int finPartida(Jugador player);//Devuelve el socket del ganador
+    int getSocketDelTurno();//Devuelve el socket del ganador
 };

@@ -141,6 +141,14 @@ int charToInt(char c){
     }
 }
 
+string BuscarUsernameSD(int sd,std::vector<Cliente>& clients){
+    for(int i=0;i<50;i++){
+        if(clients[i].sd==sd){
+            return clients[i].credenciales.username;
+        }
+    }
+}
+
 int main(){
     //VARIABLES PARA CONEXION
     int sd, new_sd;
@@ -265,196 +273,257 @@ int main(){
                             TipoMensaje msgType = MSGparser(msg);
                             
                             switch (msgType) {
-                                    case TipoMensaje::USUARIO:{
-                                        if(strcmp(buffer, "USUARIO\n") == 0){
+                                case TipoMensaje::USUARIO:{
+                                    if(strcmp(buffer, "USUARIO\n") == 0){
+                                    bzero(buffer, sizeof(buffer));
+                                    strcpy(buffer, "-Err. No ha introducido el usuario\n");
+                                    send(i, buffer, sizeof(buffer), 0);
+                                    }
+                                //Usuario no introducido
+                                    else if(strcmp(buffer, "USUARIO \n") == 0){
                                         bzero(buffer, sizeof(buffer));
                                         strcpy(buffer, "-Err. No ha introducido el usuario\n");
                                         send(i, buffer, sizeof(buffer), 0);
-                                        }
-                                    //Usuario no introducido
-                                        else if(strcmp(buffer, "USUARIO \n") == 0){
-                                            bzero(buffer, sizeof(buffer));
-                                            strcpy(buffer, "-Err. No ha introducido el usuario\n");
-                                            send(i, buffer, sizeof(buffer), 0);
-                                        }
-                                    //Usuario introducido
-                                        else {
-                                            strncpy(username, buffer + 8, 30);
-                                            //Quita el salto de linea
-                                            if (username[strlen(username)-1] == '\n')
-                                                username[strlen(username)-1] = '\0';
-                                            if(l = BuscarUsuario(username,usuarios)!=-1){
-                                                bzero(buffer,sizeof(buffer));
-                                                strcpy(buffer,"+Ok.Usuario correcto");
-                                                send(i,buffer,sizeof(buffer),0);
-                                                recv(i, buffer, sizeof(buffer), 0);
+                                    }
+                                //Usuario introducido
+                                    else {
+                                        strncpy(username, buffer + 8, 30);
+                                        //Quita el salto de linea
+                                        if (username[strlen(username)-1] == '\n')
+                                            username[strlen(username)-1] = '\0';
+                                        if(l = BuscarUsuario(username,usuarios)!=-1){
+                                            bzero(buffer,sizeof(buffer));
+                                            strcpy(buffer,"+Ok.Usuario correcto");
+                                            send(i,buffer,sizeof(buffer),0);
+                                            recv(i, buffer, sizeof(buffer), 0);
 
-                                                if(strncmp(buffer, "PASSWORD ", 9)==0){
-                                                    if(strcmp(buffer, "PASSWORD \n") == 0){
+                                            if(strncmp(buffer, "PASSWORD ", 9)==0){
+                                                if(strcmp(buffer, "PASSWORD \n") == 0){
+                                                    bzero(buffer, sizeof(buffer));
+                                                    strcpy(buffer, "-Err. No ha introducido el password\n");
+                                                    send(i, buffer, sizeof(buffer), 0);
+                                                }else{
+                                                    strncpy(passw, buffer + 9, 20);
+                                                    if (passw[strlen(passw)-1] == '\n')
+                                                        passw[strlen(passw)-1] = '\0';
+                                                    if(strcmp(passw,usuarios[l].password.c_str())==0){
                                                         bzero(buffer, sizeof(buffer));
-                                                        strcpy(buffer, "-Err. No ha introducido el password\n");
-                                                        send(i, buffer, sizeof(buffer), 0);
+                                                        strcpy(buffer, "+Ok.Usuario validado");
+                                                        send(i, buffer, sizeof(buffer),0);
+                                                        Clientes[numClientes] = {usuarios[l],i,true,false};
+                                                        numClientes++;
                                                     }else{
-                                                        strncpy(passw, buffer + 9, 20);
-                                                        if (passw[strlen(passw)-1] == '\n')
-                                                            passw[strlen(passw)-1] = '\0';
-                                                        if(strcmp(passw,usuarios[l].password.c_str())==0){
-                                                            bzero(buffer, sizeof(buffer));
-                                                            strcpy(buffer, "+Ok.Usuario validado");
-                                                            send(i, buffer, sizeof(buffer),0);
-                                                            Clientes[numClientes] = {usuarios[l],i,true,false};
-                                                            numClientes++;
-                                                        }else{
-                                                            bzero(buffer, sizeof(buffer));
-                                                            strcpy(buffer, "-Err. Error en la validacion");
-                                                            send(i, buffer, sizeof(buffer),0); 
-                                                        } 
-                                                    }
+                                                        bzero(buffer, sizeof(buffer));
+                                                        strcpy(buffer, "-Err. Error en la validacion");
+                                                        send(i, buffer, sizeof(buffer),0); 
+                                                    } 
                                                 }
-                                            }else{ //Usuario introducido no existe
-                                                bzero(buffer, sizeof(buffer));
-                                                strcpy(buffer, "-Err. Usuario incorrecto");
-                                                send(i, buffer, sizeof(buffer),0);
                                             }
+                                        }else{ //Usuario introducido no existe
+                                            bzero(buffer, sizeof(buffer));
+                                            strcpy(buffer, "-Err. Usuario incorrecto");
+                                            send(i, buffer, sizeof(buffer),0);
                                         }
                                     }
-                                        break;
-                                    case TipoMensaje::REGISTRO:{
-                                        if(j=msg.find('u') != -1){
-                                            strncpy(username,msg.substr(j,30).c_str(),30);
-                                            j=0;
-                                            bool mismoName=false;
-                                            while(j<50 && !mismoName){
-                                                if(usuarios[j].username == username)
-                                                    mismoName=true;
-                                            }
-                                            if(!mismoName){
-                                                if(i=msg.find('p') != -1){
-                                                    strncpy(passw,msg.substr(i,20).c_str(),20);
-                                                    registrarUsuario(username,passw);
-                                                    leerUsuariosDesdeArchivo(usuarios);
+                                }
+                                    break;
+                                case TipoMensaje::REGISTRO:{
+                                    if(j=msg.find('u') != -1){
+                                        strncpy(username,msg.substr(j,30).c_str(),30);
+                                        j=0;
+                                        bool mismoName=false;
+                                        while(j<50 && !mismoName){
+                                            if(usuarios[j].username == username)
+                                                mismoName=true;
+                                        }
+                                        if(!mismoName){
+                                            if(i=msg.find('p') != -1){
+                                                strncpy(passw,msg.substr(i,20).c_str(),20);
+                                                registrarUsuario(username,passw);
+                                                leerUsuariosDesdeArchivo(usuarios);
 
-                                                }
-                                            }else{
-                                                bzero(buffer,sizeof(buffer));
-                                                strcpy(buffer,"-Err.Ese username ya está ocupado");
-                                                send(i,buffer,sizeof(buffer),0);
                                             }
-                                        }
-                                        
-                                    }
-                                        break;
-                                    case TipoMensaje::INICIAR_PARTIDA:{
-                                        for(j=0;j<numClientes;j++){
-                                            if(i == Clientes[j].sd)
-                                                Clientes[j].listo = true;
-                                        }
-                                        for(k=0;k<numClientes;k++){
-                                            if( k!=j && Clientes[k].listo==true){
-                                                for(int p=0;p<NumPartidas;p++){
-                                                    if(PartidasLibres[p]==true){
-                                                        parejas[p].sd1=Clientes[k].sd;
-                                                        parejas[p].sd2=Clientes[j].sd;
-                                                        Partidas[p].nuevaPartida();
-                                                        Partidas[p].asociarSockets(parejas[p].sd1,parejas[p].sd2);
-                                                        PartidasLibres[p]=false;
-                                                        bzero(buffer,sizeof(buffer));
-                                                        strcpy(buffer,"+Ok.Empieza la partida");
-                                                        send(i,buffer,sizeof(buffer),0);
-                                                        send(Clientes[k].sd,buffer,sizeof(buffer),0);
-                                                        bzero(buffer,sizeof(buffer));
-                                                        strcpy(buffer,Partidas[p].getJugador(0).getTableroPropioString().c_str());
-                                                        send(parejas[p].sd1,buffer,sizeof(buffer),0);
-                                                        bzero(buffer,sizeof(buffer));
-                                                        strcpy(buffer,Partidas[p].getJugador(0).getTableroEnemigoString().c_str());
-                                                        send(parejas[p].sd1,buffer,sizeof(buffer),0);
-                                                        bzero(buffer,sizeof(buffer));
-                                                        strcpy(buffer,Partidas[p].getJugador(1).getTableroPropioString().c_str());
-                                                        send(parejas[p].sd2,buffer,sizeof(buffer),0);
-                                                        bzero(buffer,sizeof(buffer));
-                                                        strcpy(buffer,Partidas[p].getJugador(1).getTableroEnemigoString().c_str());
-                                                        send(parejas[p].sd2,buffer,sizeof(buffer),0);
-                                                    }
-                                                    else{
-                                                        bzero(buffer,sizeof(buffer));
-                                                        strcpy(buffer,"+Ok.Esperando Jugadores...");
-                                                    }
-                                                    break;
-                                                }
-                                            }
+                                        }else{
+                                            bzero(buffer,sizeof(buffer));
+                                            strcpy(buffer,"-Err.Ese username ya está ocupado");
+                                            send(i,buffer,sizeof(buffer),0);
                                         }
                                     }
-                                        break;
-                                    case TipoMensaje::DISPARO:{
-                                        if(j=msg.find(',') != -1){
-                                            disparoLetra = msg.at(j-1);
-                                            disparoNumero = atoi(&msg.at(j+1));
-                                            string DisparoMSG;
-                                            for(j=0;i<NumPartidas;j++){
-                                                if(parejas[j].sd1==i || parejas[j].sd2==i){
-                                                    switch(Partidas[j].DisparoRecibido(i,charToInt(disparoLetra),disparoNumero)){
-                                                        case 0:{
-                                                            DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
-                                                            bzero(buffer,sizeof(buffer));
-                                                            strcpy(buffer,DisparoMSG.c_str());
-                                                            if(parejas[j].sd1==i)
-                                                                send(parejas[j].sd2,buffer,sizeof(buffer),0);
-                                                            else
-                                                                send(parejas[j].sd1,buffer,sizeof(buffer),0);
-                                                            DisparoMSG = "+Ok.AGUA: " + disparoLetra + ',' + std::to_string(disparoNumero);
-                                                            bzero(buffer,sizeof(buffer));
-                                                            strcpy(buffer,DisparoMSG.c_str());
-                                                            send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                    
+                                }
+                                    break;
+                                case TipoMensaje::INICIAR_PARTIDA:{
+                                    for(j=0;j<numClientes;j++){
+                                        if(i == Clientes[j].sd)
+                                            Clientes[j].listo = true;
+                                    }
+                                    for(k=0;k<numClientes;k++){
+                                        if( k!=j && Clientes[k].listo==true){
+                                            for(int p=0;p<NumPartidas;p++){
+                                                if(PartidasLibres[p]==true){
+                                                    parejas[p].sd1=Clientes[k].sd;
+                                                    parejas[p].sd2=Clientes[j].sd;
+                                                    Partidas[p].nuevaPartida();
+                                                    Partidas[p].asociarSockets(parejas[p].sd1,parejas[p].sd2);
+                                                    PartidasLibres[p]=false;
+                                                    bzero(buffer,sizeof(buffer));
+                                                    strcpy(buffer,"+Ok.Empieza la partida");
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                    send(Clientes[k].sd,buffer,sizeof(buffer),0);
+                                                    bzero(buffer,sizeof(buffer));
+                                                    strcpy(buffer,Partidas[p].getJugador(0).getTableroPropioString().c_str());
+                                                    send(parejas[p].sd1,buffer,sizeof(buffer),0);
+                                                    bzero(buffer,sizeof(buffer));
+                                                    strcpy(buffer,Partidas[p].getJugador(0).getTableroEnemigoString().c_str());
+                                                    send(parejas[p].sd1,buffer,sizeof(buffer),0);
+                                                    bzero(buffer,sizeof(buffer));
+                                                    strcpy(buffer,Partidas[p].getJugador(1).getTableroPropioString().c_str());
+                                                    send(parejas[p].sd2,buffer,sizeof(buffer),0);
+                                                    bzero(buffer,sizeof(buffer));
+                                                    strcpy(buffer,Partidas[p].getJugador(1).getTableroEnemigoString().c_str());
+                                                    send(parejas[p].sd2,buffer,sizeof(buffer),0);
+                                                }
+                                                else{
+                                                    bzero(buffer,sizeof(buffer));
+                                                    strcpy(buffer,"+Ok.Esperando Jugadores...");
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                    break;
+                                case TipoMensaje::DISPARO:{
+                                    if(j=msg.find(',') != -1){
+                                        disparoLetra = msg.at(j-1);
+                                        disparoNumero = atoi(&msg.at(j+1));
+                                        string DisparoMSG;
+                                        for(j=0;i<NumPartidas;j++){
+                                            if(parejas[j].sd1==i || parejas[j].sd2==i){
+                                                switch(Partidas[j].DisparoRecibido(i,charToInt(disparoLetra),disparoNumero)){
+                                                    case 0:{
+                                                        DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        if(parejas[j].sd1==i)
                                                             send(parejas[j].sd2,buffer,sizeof(buffer),0);
-                                                        }
-                                                            break;
-                                                        case 1:{
-                                                            DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
-                                                            bzero(buffer,sizeof(buffer));
-                                                            strcpy(buffer,DisparoMSG.c_str());
-                                                            if(parejas[j].sd1==i)
-                                                                send(parejas[j].sd2,buffer,sizeof(buffer),0);
-                                                            else
-                                                                send(parejas[j].sd1,buffer,sizeof(buffer),0);
-                                                            DisparoMSG = "+Ok.TOCADO: " + disparoLetra + ',' + std::to_string(disparoNumero);
-                                                            bzero(buffer,sizeof(buffer));
-                                                            strcpy(buffer,DisparoMSG.c_str());
+                                                        else
                                                             send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        DisparoMSG = "+Ok.AGUA: " + disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                    }
+                                                        break;
+                                                    case 1:{
+                                                        DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        if(parejas[j].sd1==i)
                                                             send(parejas[j].sd2,buffer,sizeof(buffer),0);
-                                                        }
-                                                            break;
-                                                        case 2:{
-                                                            DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
-                                                            bzero(buffer,sizeof(buffer));
-                                                            strcpy(buffer,DisparoMSG.c_str());
-                                                            if(parejas[j].sd1==i)
-                                                                send(parejas[j].sd2,buffer,sizeof(buffer),0);
-                                                            else
-                                                                send(parejas[j].sd1,buffer,sizeof(buffer),0);
-                                                            DisparoMSG = "+Ok.HUNDIDO: " + disparoLetra + ',' + std::to_string(disparoNumero);
-                                                            bzero(buffer,sizeof(buffer));
-                                                            strcpy(buffer,DisparoMSG.c_str());
+                                                        else
                                                             send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        DisparoMSG = "+Ok.TOCADO: " + disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                    }
+                                                        break;
+                                                    case 2:{
+                                                        DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        if(parejas[j].sd1==i)
                                                             send(parejas[j].sd2,buffer,sizeof(buffer),0);
-                                                        }
-                                                            break;
-                                                        case -1:{
+                                                        else
+                                                            send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        DisparoMSG = "+Ok.HUNDIDO: " + disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                    }
+                                                        break;
+                                                    case 3:{
+                                                        DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        if(parejas[j].sd1==i)
+                                                            send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                        else
+                                                            send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        DisparoMSG = "+Ok.HUNDIDO: " + disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        send(parejas[j].sd2,buffer,sizeof(buffer),0);
 
-                                                        }
+                                                        
+                                                        DisparoMSG = "+Ok.<" + BuscarUsernameSD(Partidas[j].getSocketDelTurno(),Clientes) + "> ha ganado, numero de disparos <"
+                                                                        + std::to_string(Partidas[j].getJugador(i).getNumD()) ; 
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,msg.c_str());
+                                                        send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                        PartidasLibres[j]=true;
                                                     }
+                                                    case -1:{
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,"-Err.Debe esperar su turno");
+
+                                                    }
+                                                        break;
+                                                    case -2:{
+                                                        DisparoMSG = "+Ok.Disparo en " +disparoLetra + ',' + std::to_string(disparoNumero);
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,DisparoMSG.c_str());
+                                                        if(parejas[j].sd1==i)
+                                                            send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                        else
+                                                            send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                    }
+                                                        break;
+                                                    case -3:{
+                                                        bzero(buffer,sizeof(buffer));
+                                                        strcpy(buffer,"-Err.error en el server(barco no encontrado)");
+                                                        send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                                        send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                                    }
+                                                    
                                                 }
                                             }
                                         }
-
                                     }
-                                        break;
-                                    case TipoMensaje::SALIR:
-                                        break;
-                                    case TipoMensaje::DESCONOCIDO:
-                                        break;
-                                        }
-                            
-                            
+
+                                }
+                                    break;
+                                case TipoMensaje::SALIR:{
+                                    for(j=0;j<NumPartidas;j++){
+                                        if(parejas[j].sd1==i || parejas[j].sd1==i)
+                                            break;
+                                    }
+                                    int ganador;
+                                    if(parejas[j].sd1==i)
+                                        ganador=parejas[j].sd2;
+                                    else
+                                        ganador=parejas[j].sd1;
+
+                                    string DisparoMSG = "+Ok.<" + BuscarUsernameSD(ganador,Clientes) + "> ha ganado, numero de disparos <"
+                                                                        + std::to_string(Partidas[j].getJugador(i).getNumD()) ; 
+                                    bzero(buffer,sizeof(buffer));
+                                    strcpy(buffer,msg.c_str());
+                                    send(parejas[j].sd1,buffer,sizeof(buffer),0);
+                                    send(parejas[j].sd2,buffer,sizeof(buffer),0);
+                                    PartidasLibres[j]=true;  
+                                }
+                                    break;
+                                case TipoMensaje::DESCONOCIDO:{
+
+                                }
+                                    break;
+                            }
                         }
                     }
                 }

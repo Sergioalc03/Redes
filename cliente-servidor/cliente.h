@@ -23,7 +23,7 @@ private:
     struct sockaddr_in serverAddr;
 
 public:
-    TCPClient(const std::string& serverIP, int serverPort) {
+    TCPClient(std::string& serverIP, int serverPort) {
 
         clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -33,6 +33,7 @@ public:
             exit(EXIT_FAILURE);
         }
 
+        serverIP.pop_back();
         serverAddr.sin_family = AF_INET;
         serverAddr.sin_port = htons(serverPort);
         serverAddr.sin_addr.s_addr = inet_addr(serverIP.c_str());
