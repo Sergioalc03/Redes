@@ -8,6 +8,15 @@
 #include <sys/socket.h>
 #include <string>
 
+struct disparo
+{
+        char cadena[255];
+        int numero;
+        char caracter;
+};
+
+
+
 class TCPClient {
 private:
     int clientSocket;
@@ -38,6 +47,7 @@ public:
     }
 
     void sendMessage(const std::string& message);
+    void disparar(struct disparo mensaje);
     std::string receiveMessage();
     void closeConnection();
 };

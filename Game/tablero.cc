@@ -111,3 +111,29 @@ void Tablero::placeShip(Barco ship){
     }
 
 }
+
+std::string Tablero::CombertiraString(){
+
+    std::string cadena;
+    for(int i = 0; i < 10; i ++){
+        std::string aux;
+
+        for(int j = 0; j < 11; j++){
+
+            if(j != 10){
+                if(grid_[i][j] == '~'){
+
+                    aux[j] = 'A'; 
+                }else{
+
+                    aux[j] = 'B';
+                }
+            }else{
+                aux[j] = ';';
+            }
+        }
+        cadena = cadena + aux;
+    }
+
+    return cadena;
+}

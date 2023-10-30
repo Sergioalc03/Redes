@@ -8,6 +8,13 @@ void TCPClient::sendMessage(const std::string &message){
     }
 }
 
+void TCPClient::disparar(struct disparo mensaje){
+
+    if (send(clientSocket, &mensaje, sizeof(mensaje), 0) == -1) {
+        std::cerr << "Error al enviar el mensaje al servidor." << std::endl;
+    }
+}
+
 std::string TCPClient::receiveMessage(){
 
     char buffer[255];
