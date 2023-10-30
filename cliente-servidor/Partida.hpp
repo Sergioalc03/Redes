@@ -11,9 +11,11 @@ public:
     // Codigos result: -3 error en caso de barco no encontrado al buscar el hundimiento, -2 error disparado en un barco ya tocado o hundido, -1 error si no es el turno del jugador,
     // 0 si es agua, 1 si es barco tocado, 2 si es barco hundido
     Partida();
-    void asociarIPs(unsigned long ip1,unsigned long ip2);
-
-    unsigned long DisparoRecibido(unsigned long ip,int x, int y); 
+    
+    void nuevaPartida();
+    void asociarSockets(int sd1, int sd2);
+    Jugador getJugador(int i);
+    int DisparoRecibido(int socketPlayer,int x, int y); 
 
     int comprobarDisparo(int player, int x, int y); //Comprueba disparo
                                                        // Devuelve 0 si ha sido fallo, 1 si ha sido acierto,
@@ -23,5 +25,5 @@ public:
 
     void cambiarTablero(int player, int x, int y, int evento);
 
-    unsigned long finPartida(Jugador player);//Devuelve la ip del ganador
+    int finPartida(Jugador player);//Devuelve el socket del ganador
 };

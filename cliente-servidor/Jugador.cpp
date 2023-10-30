@@ -10,12 +10,22 @@ Jugador::Jugador(){
         tablero_propio.placeShip(barcos[i]);    
 }
 
-void Jugador::AsociarIP(unsigned long ip){
-    userIP=ip;
+void Jugador::nuevaPartida(){
+    barcos[0]=Barco(4);
+    barcos[1]=Barco(3);
+    barcos[2]=Barco(3);
+    barcos[3]=Barco(2);
+    barcos[4]=Barco(2);
+    for(int i=0;i<5;i++)
+        tablero_propio.placeShip(barcos[i]);   
+    }
+
+void Jugador::AsociarSocket(int socket){
+    userSocket=socket;
 }
 
-unsigned long Jugador::getIP(){
-    return userIP;
+int Jugador::getSocket(){
+    return userSocket;
 }
 
 int Jugador::getNumD(){
@@ -40,6 +50,14 @@ Tablero* Jugador::getTableroPropio(){
 
 Tablero* Jugador::getTableroEnemigo(){
     return &tablero_enemigo;
+}
+
+string Jugador::getTableroPropioString(){
+    tablero_propio.ConvertiraString();
+}
+
+string Jugador::getTableroEnemigoString(){
+    tablero_enemigo.ConvertiraString();
 }
 
 Barco Jugador::getBarco(int i){

@@ -5,7 +5,7 @@ using namespace std;
 
 class Jugador {
     private:
-        unsigned long userIP;
+        int userSocket;
         Tablero tablero_propio;
         Tablero tablero_enemigo;
         Barco barcos[5];
@@ -14,13 +14,16 @@ class Jugador {
 
     public:
         Jugador();
-        void AsociarIP(unsigned long ip);
-        unsigned long getIP();
+        void nuevaPartida();
+        void AsociarSocket(int socket);
+        int getSocket();
         int getNumD();
         void setNumD(int disp);
         int getNumB();
         void setNumB(int barcos);
         Tablero* getTableroPropio();
         Tablero* getTableroEnemigo();
+        string getTableroPropioString();
+        string getTableroEnemigoString();
         Barco getBarco(int i);
 };

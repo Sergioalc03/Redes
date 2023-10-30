@@ -112,7 +112,7 @@ void Tablero::placeShip(Barco ship){
 
 }
 
-std::string Tablero::CombertiraString(){
+std::string Tablero::ConvertiraString(){
 
     std::string cadena;
     for(int i = 0; i < 10; i ++){

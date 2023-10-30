@@ -39,7 +39,7 @@ class Tablero{
 
         void placeShip(Barco ship);
 
-        std::string CombertiraString();
+        std::string ConvertiraString();
 
         inline void setGridposition(int x, int y, char c){grid_[x][y] = c;}
         inline char getGridposition(int x, int y){return grid_[x][y];}

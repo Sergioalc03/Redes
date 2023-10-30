@@ -4,16 +4,25 @@ Partida::Partida(){
     
 }
 
-void Partida::asociarIPs(unsigned long ip1,unsigned long ip2){
-    jugadores[0].AsociarIP(ip1);
-    jugadores[1].AsociarIP(ip2);
+void Partida::nuevaPartida(){
+    jugadores[0].nuevaPartida();
+    jugadores[1].nuevaPartida();
 }
 
-unsigned long Partida::DisparoRecibido(unsigned long ip, int x, int y){
+void Partida::asociarSockets(int sd1, int sd2){
+    jugadores[0].AsociarSocket(sd1);
+    jugadores[1].AsociarSocket(sd2);
+}
+
+Jugador Partida::getJugador(int i){
+    return jugadores[i];
+}
+
+int Partida::DisparoRecibido(int SocketPlayer, int x, int y){
     int player=0;
     Barco* barcoTocado;
 
-    if(ip!=jugadores[player].getIP())
+    if(SocketPlayer!=jugadores[player].getSocket())
         player=1;
 
     if(!turno==player){
@@ -32,7 +41,7 @@ unsigned long Partida::DisparoRecibido(unsigned long ip, int x, int y){
 
                         jugadores[1-player].setNumB( jugadores[1-player].getNumB()-1 );
                         if(jugadores[1-player].getNumB()==0)
-                            return finPartida(player);
+                            return finPartida(jugadores[player]);
                 
                 } else if(barcoTocado!=nullptr) {
                         
@@ -136,6 +145,6 @@ void Partida::cambiarTablero(int player, int x, int y, int evento){
     }
 }
 
-unsigned long Partida::finPartida(Jugador player){
-    return player.getIP();
+int Partida::finPartida(Jugador player){
+    return player.getSocket();
 }
